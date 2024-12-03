@@ -26,6 +26,8 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
+  console.log('App is mounting'); // Add this line
+
   return (
     <Router>
       <AuthProvider>

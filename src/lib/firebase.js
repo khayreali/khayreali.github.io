@@ -17,6 +17,16 @@ const firebaseConfig = {
   measurementId: process.env.REACT_APP_MEASUREMENT_ID
 };
 
+// Add debug logging
+console.log('Environment Variables Present:', {
+  hasApiKey: !!process.env.REACT_APP_FIREBASE_API_KEY,
+  hasAuthDomain: !!process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  hasProjectId: !!process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  hasStorageBucket: !!process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  hasSenderId: !!process.env.REACT_APP_MESSAGING_SENDER_ID,
+  hasAppId: !!process.env.REACT_APP_APP_ID,
+  hasMeasurementId: !!process.env.REACT_APP_MEASUREMENT_ID
+});
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -25,6 +35,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+console.log('Firebase initialized successfully');
+
 export { auth, db };
-
-

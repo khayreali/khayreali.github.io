@@ -1,17 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+:root {
+ --accent-blue: #63B3ED;
+ --dark-bg: #0F1620;
+ --grid-blue: rgba(44, 82, 130, 0.07);
+ --text-primary: #ffffff;
+ --text-secondary: #63B3ED;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@keyframes twinkle {
+ 0%, 100% { opacity: 0.6; }
+ 50% { opacity: 1; }
+}
+
+@keyframes float {
+ 0%, 100% { transform: translateY(0); }
+ 50% { transform: translateY(-10px); }
+}
+
+body {
+ margin: 0;
+ font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+ -webkit-font-smoothing: antialiased;
+ -moz-osx-font-smoothing: grayscale;
+ background-color: var(--dark-bg);
+ background-image: 
+   linear-gradient(to right, var(--grid-blue) 1px, transparent 1px),
+   linear-gradient(to bottom, var(--grid-blue) 1px, transparent 1px);
+ background-size: 40px 40px;
+}
+
+.mono {
+ font-family: 'JetBrains Mono', monospace;
+}
+
+.glass-panel {
+ background: rgba(19, 30, 43, 0.8);
+ backdrop-filter: blur(8px);
+ -webkit-backdrop-filter: blur(8px);
+ border: 1px solid rgba(99, 179, 237, 0.1);
+}
+
+.card-hover {
+ transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+ transform: translateY(-4px);
+ box-shadow: 0 4px 20px rgba(99, 179, 237, 0.1);
+}
+
+h1, h2, h3, h4, h5, h6 {
+ font-family: 'Space Grotesk', sans-serif;
+}
+
+.text-gradient {
+ background: linear-gradient(to right, var(--accent-blue), #90CDF4);
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+}
+
+.bg-star-pattern {
+ background-image: radial-gradient(circle at center, var(--accent-blue) 0.1%, transparent 0.5%);
+ background-size: 16px 16px;
 }

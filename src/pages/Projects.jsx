@@ -8,6 +8,7 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Projects component mounted');
     const fetchProjects = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'projects'));
@@ -28,6 +29,8 @@ const Projects = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <h1 className="text-6xl text-red-500 font-bold mb-8">TESTING - REACT IS WORKING IF YOU SEE THIS</h1>
+      
       <nav className="mb-8">
         <ul className="flex space-x-6">
           <li>
@@ -43,6 +46,10 @@ const Projects = () => {
       </nav>
       
       <h1 className="text-4xl font-bold text-purple-400 mb-8">My Projects</h1>
+      
+      <div className="text-white mb-4">
+        Firebase Status: {loading ? "Connecting..." : "Connected"}
+      </div>
       
       {loading ? (
         <div className="text-purple-400">Loading projects...</div>

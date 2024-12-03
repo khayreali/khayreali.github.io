@@ -31,18 +31,23 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: List Build Directory Before
-        run: ls -la
-
       - name: Build
         run: npm run build
         env:
           CI: false
+          REACT_APP_FIREBASE_API_KEY: ${{ secrets.REACT_APP_FIREBASE_API_KEY }}
+          REACT_APP_FIREBASE_AUTH_DOMAIN: ${{ secrets.REACT_APP_FIREBASE_AUTH_DOMAIN }}
+          REACT_APP_FIREBASE_PROJECT_ID: ${{ secrets.REACT_APP_FIREBASE_PROJECT_ID }}
+          REACT_APP_FIREBASE_STORAGE_BUCKET: ${{ secrets.REACT_APP_FIREBASE_STORAGE_BUCKET }}
+          REACT_APP_MESSAGING_SENDER_ID: ${{ secrets.REACT_APP_MESSAGING_SENDER_ID }}
+          REACT_APP_APP_ID: ${{ secrets.REACT_APP_APP_ID }}
+          REACT_APP_MEASUREMENT_ID: ${{ secrets.REACT_APP_MEASUREMENT_ID }}
 
-      - name: List Build Directory After
+      - name: Check static files
         run: |
-          echo "Contents of build directory:"
-          ls -la build/
+          echo "Contents of static directory:"
+          ls -la build/static/js/
+          ls -la build/static/css/
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4

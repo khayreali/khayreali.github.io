@@ -3,79 +3,83 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLayout = ({ children }) => {
-  const { currentUser, signOut } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
+ const { currentUser, signOut } = useAuth();
+ const navigate = useNavigate();
+ const location = useLocation();
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate('/admin/login');
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
+ const handleSignOut = async () => {
+   try {
+     await signOut();
+     navigate('/admin/login');
+   } catch (error) {
+     console.error('Error signing out:', error);
+   }
+ };
 
-  const isActive = (path) => {
-    return location.pathname === path ? 'bg-purple-900/50' : '';
-  };
+ const isActive = (path) => {
+   return location.pathname === path ? 'bg-[#63B3ED]/10 border-l-2 border-[#63B3ED]' : '';
+ };
 
-  const navItems = [
-    { path: '/admin', label: 'Dashboard', icon: '📊' },
-    { path: '/admin/blog', label: 'Blog Posts', icon: '📝' },
-    { path: '/admin/projects', label: 'Projects', icon: '💼' }
-  ];
+ const navItems = [
+   { path: '/admin', label: 'Dashboard', icon: '📊' },
+   { path: '/admin/blog', label: 'Blog Posts', icon: '📝' },
+   { path: '/admin/projects', label: 'Projects', icon: '💼' }
+ ];
 
-  return (
-    <div className="min-h-screen bg-gray-900 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-gray-800 text-white">
-        <div className="p-4">
-          <h1 className="text-xl font-bold text-purple-400">Admin Panel</h1>
-          <p className="text-sm text-gray-400 mt-1">{currentUser?.email}</p>
-        </div>
-        
-        {/* Navigation */}
-        <nav className="mt-8">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center px-4 py-3 text-gray-300 hover:bg-purple-900/30 transition-colors ${isActive(item.path)}`}
-            >
-              <span className="mr-3">{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+ return (
+   <div className="min-h-screen bg-[#0F1620] flex">
+     {/* Sidebar */}
+     <div className="w-64 bg-[#131E2B] text-white border-r border-[#2C5282]/20">
+       <div className="p-6">
+         <h1 className="text-xl font-bold text-[#63B3ED] font-['Space_Grotesk']">Admin Panel</h1>
+         <p className="text-sm text-gray-400 mt-1 font-['Space_Grotesk']">{currentUser?.email}</p>
+       </div>
 
-        {/* Footer Actions */}
-        <div className="absolute bottom-0 w-64 p-4 bg-gray-800 border-t border-gray-700">
-          <div className="flex flex-col space-y-4">
-            <Link 
-              to="/" 
-              className="text-sm text-gray-400 hover:text-purple-400 transition-colors"
-            >
-              View Public Site
-            </Link>
-            <button
-              onClick={handleSignOut}
-              className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors"
-            >
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </div>
+       {/* Navigation */}
+       <nav className="mt-8">
+         {navItems.map((item) => (
+           <Link
+             key={item.path}
+             to={item.path}
+             className={`flex items-center px-6 py-3 text-gray-300 hover:bg-[#63B3ED]/5 
+                        transition-all duration-300 font-['Space_Grotesk'] ${isActive(item.path)}`}
+           >
+             <span className="mr-3">{item.icon}</span>
+             {item.label}
+           </Link>
+         ))}
+       </nav>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="p-8">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
+       {/* Footer Actions */}
+       <div className="absolute bottom-0 w-64 p-6 bg-[#131E2B] border-t border-[#2C5282]/20">
+         <div className="flex flex-col space-y-4">
+           <Link
+             to="/"
+             className="text-sm text-gray-400 hover:text-[#63B3ED] transition-colors font-['Space_Grotesk']"
+           >
+             View Public Site
+           </Link>
+           <button
+             onClick={handleSignOut}
+             className="w-full py-2 px-4 bg-[#63B3ED] hover:bg-[#63B3ED]/90 text-white rounded-lg 
+                      transition-all duration-300 font-['Space_Grotesk'] relative overflow-hidden group"
+           >
+             <span className="relative z-10">Sign Out</span>
+             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent
+                          translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+           </button>
+         </div>
+       </div>
+     </div>
+
+     {/* Main Content */}
+     <div className="flex-1">
+       <div className="p-8">
+         {children}
+       </div>
+     </div>
+   </div>
+ );
 };
 
 export default AdminLayout;

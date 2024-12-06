@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Upload, X } from 'lucide-react';
-import ReactCrop from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
 
 const AboutEditor = () => {
   const [loading, setLoading] = useState(false);
@@ -15,20 +13,17 @@ const AboutEditor = () => {
     imageUrl: ''
   });
 
-  // Image and cropping states
-  const [showCropper, setShowCropper] = useState(false);
-  const [imageToCrop, setImageToCrop] = useState(null);
-  const [imgRef, setImgRef] = useState(null);
-  const [crop, setCrop] = useState({
-    unit: '%',
-    width: 90,
-    aspect: 1,
-    x: 5,
-    y: 5,
-    height: 90 // Add this line - we need to set height since we're using aspect ratio
-  });
-  const [completedCrop, setCompletedCrop] = useState(null);
+  useEffect(() => {
+    // Load Cloudinary widget script
+    const script = document.createElement('script');
+    script.src = "https://upload-widget.cloudinary.com/global/all.js";
+    script.async = true;
+    document.body.appendChild(script);
 
+    return () => {
+      document.body.removeChild(script);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchAboutData = async () => {
@@ -47,93 +42,50 @@ const AboutEditor = () => {
     fetchAboutData();
   }, []);
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
+  const handleImageUpload = () => {
+    if (!window.cloudinary) {
+      console.error('Cloudinary widget not loaded');
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Please upload an image smaller than 5MB');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImageToCrop(reader.result);
-      setShowCropper(true);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const onImageLoad = (image) => {
-    setImgRef(image);
-  };
-
-  const getCroppedImg = async (crop) => {
-    if (!imgRef) return null;
-
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    canvas.width = 256;
-    canvas.height = 256;
-    
-    ctx.beginPath();
-    ctx.arc(128, 128, 128, 0, Math.PI * 2);
-    ctx.clip();
-
-    const scaleX = imgRef.naturalWidth / imgRef.width;
-    const scaleY = imgRef.naturalHeight / imgRef.height;
-
-    const pixelCrop = {
-      x: crop.x * scaleX,
-      y: crop.y * scaleY,
-      width: crop.width * scaleX,
-      height: crop.height * scaleY,
-    };
-
-    ctx.drawImage(
-      imgRef,
-      pixelCrop.x,
-      pixelCrop.y,
-      pixelCrop.width,
-      pixelCrop.height,
-      0,
-      0,
-      256,
-      256
+    const widget = window.cloudinary.createUploadWidget(
+      {
+        cloudName: 'dfqrq9tlf',
+        uploadPreset: 'personal_uploads',
+        sources: ['local', 'url', 'camera'],
+        multiple: false,
+        maxFiles: 1,
+        maxFileSize: 5000000, // 5MB
+        cropping: true,
+        croppingAspectRatio: 1,
+        croppingShowDimensions: true,
+        croppingValidateDimensions: true,
+        showSkipCropButton: false,
+        // These settings ensure we get the cropped version
+        eager: [
+          { width: 256, height: 256, crop: "fill" }
+        ],
+        // Use the eager transformation
+        useJsonP: true,
+        eager_async: true,
+        return_delete_token: true,
+      },
+      (error, result) => {
+        if (!error && result && result.event === "success") {
+          // Use the eager transformed URL if available
+          const imageUrl = result.info.eager ? 
+            result.info.eager[0].secure_url : 
+            result.info.secure_url;
+          
+          setAboutData(prev => ({
+            ...prev,
+            imageUrl: imageUrl
+          }));
+        }
+      }
     );
 
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        resolve(URL.createObjectURL(blob));
-      }, 'image/jpeg', 1);
-    });
-  };
-
-  const handleCropComplete = async () => {
-    if (!completedCrop || !imgRef) return;
-  
-    try {
-      const croppedImageUrl = await getCroppedImg(completedCrop);
-      if (croppedImageUrl) {
-        setAboutData(prev => ({
-          ...prev,
-          imageUrl: croppedImageUrl
-        }));
-        setShowCropper(false);
-        setImageToCrop(null);
-        setImgRef(null);
-        setCompletedCrop(null);
-      }
-    } catch (error) {
-      console.error('Error cropping image:', error);
-      alert('Failed to crop image');
-    }
+    widget.open();
   };
 
   const handleRemoveImage = () => {
@@ -201,47 +153,7 @@ const AboutEditor = () => {
         <div>
           <label className="block text-[#63B3ED] mb-2 font-['Space_Grotesk']">Profile Image</label>
           <div className="space-y-4">
-            {showCropper && imageToCrop ? (
-              <div className="space-y-4">
-                <ReactCrop
-  crop={crop}
-  onChange={(c) => setCrop(c)}
-  onComplete={(c) => setCompletedCrop(c)}
-  aspect={1}
-  circularCrop
-  className="max-w-md bg-[#131E2B] rounded-lg border border-[#2C5282]/20"
->
-  <img 
-    src={imageToCrop} 
-    alt="Crop me" 
-    onLoad={(e) => setImgRef(e.target)}
-  />
-</ReactCrop>
-
-                <div className="flex gap-4">
-                  <button
-                    type="button"
-                    onClick={handleCropComplete}
-                    className="px-4 py-2 bg-[#63B3ED] text-white rounded-lg hover:bg-[#63B3ED]/90 
-                             transition-all duration-300 font-['Space_Grotesk']"
-                  >
-                    Apply Crop
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowCropper(false);
-                      setImageToCrop(null);
-                      setImgRef(null);
-                    }}
-                    className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30
-                             transition-all duration-300 font-['Space_Grotesk']"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : aboutData.imageUrl ? (
+            {aboutData.imageUrl ? (
               <div className="relative group">
                 <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-[#63B3ED]/20">
                   <img
@@ -261,22 +173,15 @@ const AboutEditor = () => {
               </div>
             ) : (
               <div className="relative">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  id="image-upload"
-                  disabled={loading}
-                />
-                <label
-                  htmlFor="image-upload"
+                <button
+                  type="button"
+                  onClick={handleImageUpload}
                   className="flex items-center justify-center w-32 h-32 rounded-full
                            border-2 border-dashed border-[#63B3ED]/20 cursor-pointer
                            hover:border-[#63B3ED]/40 transition-all duration-300"
                 >
                   <Upload className="text-[#63B3ED]" size={24} />
-                </label>
+                </button>
               </div>
             )}
           </div>

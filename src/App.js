@@ -1,5 +1,4 @@
-// src/App.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './contexts/AuthContext';
@@ -11,14 +10,77 @@ import Blog from './pages/Blog';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Login from './components/admin/Login';
 
+const StarryBackground = React.memo(() => {
+  const stars = [...Array(100)].map(() => ({
+    top: `${Math.random() * 100}%`,
+    left: `${Math.random() * 100}%`,
+    width: `${Math.random() * 4 + 1}px`,
+    height: `${Math.random() * 4 + 1}px`,
+    animation: `twinkle ${Math.random() * 3 + 2}s infinite`
+  }));
+
+  return (
+    <div className="fixed inset-0 opacity-50 pointer-events-none" style={{ zIndex: 10 }}>
+      {stars.map((style, i) => (
+        <div
+          key={i}
+          className="absolute bg-[#63B3ED] rounded-full"
+          style={style}
+        />
+      ))}
+    </div>
+  );
+});
+
 const ProtectedRoute = ({ children }) => {
-  const { currentUser, loading } = useAuth();
+  const { currentUser, loading, signOut } = useAuth();
+  
+  useEffect(() => {
+    // Check session timeout (30 minutes)
+    const checkSession = () => {
+      const sessionStart = sessionStorage.getItem('sessionStart');
+      if (sessionStart) {
+        const sessionAge = Date.now() - parseInt(sessionStart);
+        if (sessionAge > 30 * 60 * 1000) { // 30 minutes
+          signOut();
+          return;
+        }
+      }
+    };
+
+    const interval = setInterval(checkSession, 60000); // Check every minute
+    window.addEventListener('focus', checkSession); // Check when tab becomes active
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', checkSession);
+    };
+  }, [signOut]);
+
+  // Handle tab/window close
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      sessionStorage.clear();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
   
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <div className="w-4 h-4 border-2 border-[#63B3ED] border-t-transparent rounded-full animate-spin"/>
+          <span className="text-[#63B3ED] font-['Space_Grotesk']">Loading...</span>
+        </div>
+      </div>
+    );
   }
   
   if (!currentUser) {
+    // Clear any existing session data
+    sessionStorage.clear();
     return <Navigate to="/admin/login" />;
   }
 
@@ -26,15 +88,26 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  console.log('App is mounting'); // Add this line
+  useEffect(() => {
+    // Prevent indexing of admin routes
+    const robotsMeta = document.createElement('meta');
+    robotsMeta.name = 'robots';
+    robotsMeta.content = 'noindex, nofollow';
+    document.head.appendChild(robotsMeta);
+
+    return () => {
+      document.head.removeChild(robotsMeta);
+    };
+  }, []);
 
   return (
-    <Router>
-      <AuthProvider>
-        <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-[#0F1620] relative">
+      <StarryBackground />
+      <Router>
+        <AuthProvider>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<Projects />} /> {/* This is the home page */}
+            <Route path="/" element={<Projects />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/about" element={<About />} />
             <Route path="/blog" element={<Blog />} />
@@ -53,9 +126,9 @@ function App() {
             {/* Catch all redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </div>
-      </AuthProvider>
-    </Router>
+        </AuthProvider>
+      </Router>
+    </div>
   );
 }
 

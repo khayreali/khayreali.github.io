@@ -1,3 +1,8 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /admin/*
+
+# Prevent indexing of admin routes
+User-agent: *
+Noindex: /admin/
+Noindex: /admin/*

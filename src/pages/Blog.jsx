@@ -1,14 +1,38 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { X, ChevronDown } from 'lucide-react';
+import { X, ChevronDown, Menu } from 'lucide-react';
+
+const MobileNav = ({ isOpen, onClose }) => (
+  <div className={`fixed inset-0 bg-[#0F1620]/95 backdrop-blur-sm z-50 lg:hidden transition-all duration-300 ${
+    isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+  }`}>
+    <div className="flex justify-end p-6">
+      <button onClick={onClose} className="text-[#63B3ED] hover:text-white transition-all duration-300">
+        <X size={24} />
+      </button>
+    </div>
+    <nav className="flex flex-col items-center space-y-8 pt-12">
+      {['Home', 'About', 'Blog'].map((item) => (
+        <Link
+          key={item}
+          to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+          onClick={onClose}
+          className="text-2xl text-[#63B3ED] hover:text-white transition-all duration-300 font-['Space_Grotesk']"
+        >
+          {item}
+        </Link>
+      ))}
+    </nav>
+  </div>
+);
 
 const TagButton = ({ tag, isSelected, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`px-3 py-1.5 rounded-full text-sm
+    className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm
               transition-all duration-300 cursor-pointer relative z-20
               ${isSelected
                 ? 'bg-[#63B3ED] text-white hover:bg-[#63B3ED]/90'
@@ -24,16 +48,16 @@ const BlogPost = ({ post, isExpanded, onToggle }) => (
     className={`bg-[#131E2B] rounded-xl border border-[#2C5282]/10 
               hover:border-[#2C5282]/30 transition-all duration-500 
               transform relative group cursor-pointer
-              ${isExpanded ? 'p-8' : 'p-6'}`}
+              ${isExpanded ? 'p-6 sm:p-8' : 'p-4 sm:p-6'}`}
     onClick={onToggle}
   >
-    <div className="absolute top-0 left-0 w-16 h-16 overflow-hidden pointer-events-none">
+    <div className="absolute top-0 left-0 w-12 sm:w-16 h-12 sm:h-16 overflow-hidden pointer-events-none">
       <div className="absolute top-0 left-0 w-[1px] h-full bg-gradient-to-b from-[#63B3ED] to-transparent group-hover:h-16 transition-all duration-500"/>
       <div className="absolute top-0 left-0 h-[1px] w-full bg-gradient-to-r from-[#63B3ED] to-transparent group-hover:w-16 transition-all duration-500"/>
     </div>
 
     <div className="flex items-center justify-between mb-2">
-      <div className="text-[#63B3ED] text-sm font-['Space_Grotesk']">
+      <div className="text-[#63B3ED] text-xs sm:text-sm font-['Space_Grotesk']">
         {new Date(post.date + 'T00:00:00').toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'long',
@@ -42,20 +66,20 @@ const BlogPost = ({ post, isExpanded, onToggle }) => (
       </div>
       <ChevronDown 
         className={`text-[#63B3ED] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} 
-        size={20} 
+        size={18} 
       />
     </div>
     
-    <h2 className="text-2xl font-bold text-white mb-4 font-['Space_Grotesk'] group-hover:text-[#63B3ED] transition-colors">
+    <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 font-['Space_Grotesk'] group-hover:text-[#63B3ED] transition-colors">
       {post.title}
     </h2>
 
     {post.tags && post.tags.length > 0 && (
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
         {post.tags.map((tag, index) => (
           <span
             key={index}
-            className="px-3 py-1 bg-[#0F1620] text-[#63B3ED] text-sm rounded-full 
+            className="px-2 sm:px-3 py-0.5 sm:py-1 bg-[#0F1620] text-[#63B3ED] text-xs sm:text-sm rounded-full 
                      border border-[#2C5282]/10 font-['Space_Grotesk']"
             onClick={(e) => e.stopPropagation()}
           >
@@ -72,7 +96,7 @@ const BlogPost = ({ post, isExpanded, onToggle }) => (
       <div className="prose prose-invert max-w-none pt-4 border-t border-[#2C5282]/10">
         {post.content.split('\n').map((paragraph, index) => (
           paragraph ? (
-            <p key={index} className="text-gray-300 mb-4 font-['Space_Grotesk'] leading-relaxed">
+            <p key={index} className="text-sm sm:text-base text-gray-300 mb-3 sm:mb-4 font-['Space_Grotesk'] leading-relaxed">
               {paragraph}
             </p>
           ) : null
@@ -87,6 +111,8 @@ const Blog = () => {
   const [loading, setLoading] = useState(true);
   const [activeTag, setActiveTag] = useState(null);
   const [expandedPostId, setExpandedPostId] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -121,12 +147,12 @@ const Blog = () => {
 
   const handleTagClick = (tag) => {
     setActiveTag(current => current?.name === tag.name ? null : tag);
-    setExpandedPostId(null); // Close expanded post when changing tags
+    setExpandedPostId(null);
   };
 
   const clearFilter = () => {
     setActiveTag(null);
-    setExpandedPostId(null); // Close expanded post when clearing filter
+    setExpandedPostId(null);
   };
 
   const filteredPosts = useMemo(() => {
@@ -140,11 +166,28 @@ const Blog = () => {
     setExpandedPostId(current => current === postId ? null : postId);
   };
 
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
   return (
     <div className="min-h-screen bg-[#0F1620] relative overflow-hidden">
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0F1620]/90 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-8 py-4">
-          <ul className="flex space-x-12">
+      <MobileNav isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+
+      <nav className="fixed top-0 left-0 right-0 z-40 bg-[#0F1620]/90 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center lg:hidden">
+            <Link to="/" className="text-[#63B3ED] font-['Space_Grotesk'] text-xl">
+              Blog
+            </Link>
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="text-[#63B3ED] hover:text-white transition-all duration-300"
+            >
+              <Menu size={24} />
+            </button>
+          </div>
+          <ul className="hidden lg:flex space-x-12">
             {['Home', 'About', 'Blog'].map((item) => (
               <li key={item} className="relative group">
                 <Link 
@@ -160,26 +203,26 @@ const Blog = () => {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto pt-32 px-8">
-        <div className="relative mb-24">
-          <h1 className="text-8xl font-bold text-white font-['Space_Grotesk'] relative z-10">
+      <div className="max-w-7xl mx-auto pt-24 lg:pt-32 px-4 sm:px-6 lg:px-8">
+        <div className="relative mb-12 sm:mb-16 lg:mb-24">
+          <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold text-white font-['Space_Grotesk'] relative z-10">
             Blog
             <span className="text-[#63B3ED]">.</span>
           </h1>
-          <div className="absolute -top-8 -left-4 w-24 h-24 border-2 border-[#63B3ED]/20 rounded-full pointer-events-none" />
-          <div className="absolute top-0 left-0 w-16 h-16 border-2 border-[#63B3ED]/40 rounded-full pointer-events-none" />
-          <div className="absolute -bottom-4 right-1/4 w-12 h-12 border-2 border-[#63B3ED]/30 rounded-full pointer-events-none" />
+          <div className="absolute -top-4 sm:-top-6 lg:-top-8 -left-2 sm:-left-3 lg:-left-4 w-12 sm:w-16 lg:w-24 h-12 sm:h-16 lg:h-24 border-2 border-[#63B3ED]/20 rounded-full pointer-events-none" />
+          <div className="absolute top-0 left-0 w-8 sm:w-12 lg:w-16 h-8 sm:h-12 lg:h-16 border-2 border-[#63B3ED]/40 rounded-full pointer-events-none" />
+          <div className="absolute -bottom-2 sm:-bottom-3 lg:-bottom-4 right-1/4 w-6 sm:w-8 lg:w-12 h-6 sm:h-8 lg:h-12 border-2 border-[#63B3ED]/30 rounded-full pointer-events-none" />
         </div>
 
         {!loading && allTags.length > 0 && (
-          <div className="mb-12 flex flex-wrap gap-3 items-center relative z-20">
+          <div className="mb-8 sm:mb-10 lg:mb-12 flex flex-wrap gap-2 sm:gap-3 items-center relative z-20">
             {activeTag && (
               <button
                 type="button"
                 onClick={clearFilter}
-                className="px-4 py-2 rounded-full bg-[#131E2B] text-red-400 
+                className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[#131E2B] text-red-400 
                          hover:bg-red-400/10 border border-red-400/20 
-                         transition-all duration-300 font-['Space_Grotesk'] text-sm
+                         transition-all duration-300 font-['Space_Grotesk'] text-xs sm:text-sm
                          flex items-center gap-2 cursor-pointer relative z-20"
               >
                 <X size={14} />
@@ -203,7 +246,7 @@ const Blog = () => {
             <span className="text-[#63B3ED] font-['Space_Grotesk']">Loading posts...</span>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {filteredPosts.map((post) => (
               <BlogPost
                 key={post.id}

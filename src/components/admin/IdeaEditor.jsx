@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { db } from '../../lib/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { NodeSelection } from 'prosemirror-state';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
@@ -11,6 +12,7 @@ import {
   List, ListOrdered, Image as ImageIcon, ArrowLeft, Save
 } from 'lucide-react';
 import Modal from '../ui/Modal';
+import ImageUploadModal from '../ui/ImageUploadModal';
 
 const MenuBar = ({ editor }) => {
   const [showImageModal, setShowImageModal] = useState(false);
@@ -20,12 +22,7 @@ const MenuBar = ({ editor }) => {
 
   const addImage = (url) => {
     if (url) {
-      // Add protocol if not present
-      let imageUrl = url;
-      if (!/^https?:\/\//i.test(url)) {
-        imageUrl = `https://${url}`;
-      }
-      editor.chain().focus().setImage({ src: imageUrl }).run();
+      editor.chain().focus().setImage({ src: url }).run();
     }
   };
 
@@ -35,7 +32,6 @@ const MenuBar = ({ editor }) => {
       return;
     }
     
-    // Add protocol if not present
     let finalUrl = url;
     if (!/^https?:\/\//i.test(url)) {
       finalUrl = `https://${url}`;
@@ -114,21 +110,18 @@ const MenuBar = ({ editor }) => {
       </div>
 
       <Modal
-        isOpen={showImageModal}
-        onClose={() => setShowImageModal(false)}
-        onSubmit={addImage}
-        title="Add Image"
-        placeholder="Enter the image URL"
-        buttonText="Add Image"
-      />
-
-      <Modal
         isOpen={showLinkModal}
         onClose={() => setShowLinkModal(false)}
         onSubmit={setLink}
         title="Add Link"
         placeholder="Enter the URL"
         buttonText="Add Link"
+      />
+
+      <ImageUploadModal
+        isOpen={showImageModal}
+        onClose={() => setShowImageModal(false)}
+        onSubmit={addImage}
       />
     </>
   );
@@ -154,11 +147,49 @@ const IdeaEditor = () => {
       }),
       Image.configure({
         HTMLAttributes: {
-          class: 'rounded-lg max-w-full'
-        }
+          class: 'rounded-lg max-w-full cursor-move select-none hover:ring-2 hover:ring-[#63B3ED] transition-shadow',
+          draggable: 'true',
+        },
+        allowBase64: true,
       })
     ],
     editorProps: {
+      handleDOMEvents: {
+        dragstart: (view, event) => {
+          const pos = view.posAtDOM(event.target, 0);
+          const $pos = view.state.doc.resolve(pos);
+          const node = view.state.doc.nodeAt(pos);
+          
+          if (node && node.type.name === 'image') {
+            view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos)));
+            return true;
+          }
+          return false;
+        },
+        drop: (view, event) => {
+          const coordinates = view.posAtCoords({ 
+            left: event.clientX, 
+            top: event.clientY 
+          });
+
+          if (!coordinates) return false;
+
+          const tr = view.state.tr;
+          const selection = view.state.selection;
+
+          if (selection instanceof NodeSelection && selection.node.type.name === 'image') {
+            const pos = coordinates.pos;
+            const node = selection.node;
+            
+            tr.deleteSelection()
+              .insert(pos, node);
+            
+            view.dispatch(tr);
+            return true;
+          }
+          return false;
+        }
+      },
       attributes: {
         class: [
           'prose',
@@ -181,7 +212,14 @@ const IdeaEditor = () => {
           'prose-ol:text-white',
           'prose-ul:text-white',
           'prose-bullet:text-white',
-          'prose-marker:text-white'
+          'prose-marker:text-white',
+          'prose-img:mx-auto',
+          'prose-img:max-w-[80%]',
+          '[&_img]:hover:ring-2',
+          '[&_img]:hover:ring-[#63B3ED]',
+          '[&_img]:transition-all',
+          '[&_img]:duration-200',
+          '[&_img]:cursor-move'
         ].join(' ')
       }
     }

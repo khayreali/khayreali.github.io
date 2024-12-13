@@ -98,3 +98,153 @@ h1, h2, h3, h4, h5, h6 {
   background-image: radial-gradient(circle at center, var(--accent-blue) 0.1%, transparent 0.5%);
   background-size: 16px 16px;
 }
+
+/* TipTap Editor Styles */
+.ProseMirror {
+  font-family: 'Space Grotesk', sans-serif !important;
+  color: var(--text-primary);
+  min-height: 500px;
+  padding: 1rem;
+}
+
+.ProseMirror p {
+  margin: 1em 0;
+  color: var(--text-primary);
+}
+
+.ProseMirror:focus {
+  outline: none;
+}
+
+/* Headings */
+.ProseMirror h1 {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 700;
+  margin: 1.5em 0 0.5em;
+  color: var(--text-primary);
+}
+
+.ProseMirror h2 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+  margin: 1.5em 0 0.5em;
+  color: var(--text-primary);
+}
+
+/* Lists */
+.ProseMirror ol {
+  list-style-type: decimal;
+  color: var(--text-primary);
+  padding-left: 1.5em;
+  margin: 1em 0;
+}
+
+.ProseMirror ul {
+  list-style-type: disc;
+  color: var(--text-primary);
+  padding-left: 1.5em;
+  margin: 1em 0;
+}
+
+.ProseMirror li {
+  margin: 0.5em 0;
+  color: var(--text-primary);
+}
+
+.ProseMirror li::marker {
+  color: var(--text-primary);
+}
+
+.ProseMirror li p {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+/* Code blocks */
+.ProseMirror pre {
+  background: var(--dark-bg);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1em 0;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-primary);
+}
+
+.ProseMirror code {
+  background: var(--dark-bg);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875em;
+  color: var(--text-primary);
+}
+
+/* Blockquotes */
+.ProseMirror blockquote {
+  border-left: 4px solid var(--accent-blue);
+  padding-left: 1rem;
+  margin: 1em 0;
+  font-style: italic;
+  color: var(--text-primary);
+}
+
+/* Links */
+.ProseMirror a {
+  color: var(--accent-blue);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.ProseMirror a:hover {
+  text-decoration: underline;
+}
+
+/* Images */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1em 0;
+}
+
+/* Selection */
+.ProseMirror ::selection {
+  background: var(--accent-blue);
+  color: white;
+}
+
+/* Placeholder text */
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #4A5568;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Nested lists */
+.ProseMirror ol ol,
+.ProseMirror ul ul,
+.ProseMirror ul ol,
+.ProseMirror ol ul {
+  margin: 0.5em 0;
+}
+
+/* Ensure all list markers are visible */
+.ProseMirror ul li::before,
+.ProseMirror ol li::before {
+  color: var(--text-primary);
+}
+
+/* Basic text elements */
+.ProseMirror strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.ProseMirror em {
+  color: var(--text-primary);
+  font-style: italic;
+}

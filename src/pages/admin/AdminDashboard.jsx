@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import BlogEditor from '../../components/admin/BlogEditor';
 import ProjectEditor from '../../components/admin/ProjectEditor';
 import DashboardHome from '../../components/admin/DashboardHome';
 import AboutEditor from '../../components/admin/AboutEditor';
+import IdeaEditor from '../../components/admin/IdeaEditor';
 
 const AdminDashboard = () => {
   const { currentUser, signOut } = useAuth();
@@ -52,16 +53,28 @@ const AdminDashboard = () => {
       <nav className="bg-[#131E2B] border-b border-[#2C5282]/20 p-4">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-8">
-            <Link to="/admin" className="text-[#63B3ED] hover:text-white transition-colors duration-300 font-['Space_Grotesk']">
+            <Link 
+              to="/admin" 
+              className="text-[#63B3ED] hover:text-white transition-colors duration-300 font-['Space_Grotesk']"
+            >
               Dashboard
             </Link>
-            <Link to="/admin/projects" className="text-[#63B3ED] hover:text-white transition-colors duration-300 font-['Space_Grotesk']">
+            <Link 
+              to="/admin/projects" 
+              className="text-[#63B3ED] hover:text-white transition-colors duration-300 font-['Space_Grotesk']"
+            >
               Projects
             </Link>
-            <Link to="/admin/blog" className="text-[#63B3ED] hover:text-white transition-colors duration-300 font-['Space_Grotesk']">
+            <Link 
+              to="/admin/blog" 
+              className="text-[#63B3ED] hover:text-white transition-colors duration-300 font-['Space_Grotesk']"
+            >
               Blog Posts
             </Link>
-            <Link to="/admin/about" className="text-[#63B3ED] hover:text-white transition-colors duration-300 font-['Space_Grotesk']">
+            <Link 
+              to="/admin/about" 
+              className="text-[#63B3ED] hover:text-white transition-colors duration-300 font-['Space_Grotesk']"
+            >
               About Page
             </Link>
           </div>
@@ -85,9 +98,11 @@ const AdminDashboard = () => {
       <main className="container mx-auto p-8">
         <Routes>
           <Route index element={<DashboardHome />} />
+          <Route path="editor/:id" element={<IdeaEditor />} />
           <Route path="projects" element={<ProjectEditor />} />
           <Route path="blog" element={<BlogEditor />} />
           <Route path="about" element={<AboutEditor />} />
+          <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </main>
     </div>

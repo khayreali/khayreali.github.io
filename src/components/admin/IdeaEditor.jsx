@@ -8,115 +8,129 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import {
   Bold, Italic, Link as LinkIcon, Heading1, Heading2, 
-  List, ListOrdered, Image as ImageIcon, ArrowLeft, Save,
-  Code, Quote
+  List, ListOrdered, Image as ImageIcon, ArrowLeft, Save
 } from 'lucide-react';
+import Modal from '../ui/Modal';
 
 const MenuBar = ({ editor }) => {
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+
   if (!editor) return null;
 
-  const addImage = () => {
-    const url = window.prompt('Enter the URL of the image:');
+  const addImage = (url) => {
     if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+      // Add protocol if not present
+      let imageUrl = url;
+      if (!/^https?:\/\//i.test(url)) {
+        imageUrl = `https://${url}`;
+      }
+      editor.chain().focus().setImage({ src: imageUrl }).run();
     }
   };
 
-  const setLink = () => {
-    const url = window.prompt('Enter the URL:');
-    if (url === null) {
-      return;
-    }
+  const setLink = (url) => {
     if (url === '') {
       editor.chain().focus().extendMarkRange('link').unsetLink().run();
       return;
     }
-    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    
+    // Add protocol if not present
+    let finalUrl = url;
+    if (!/^https?:\/\//i.test(url)) {
+      finalUrl = `https://${url}`;
+    }
+    
+    editor.chain().focus().extendMarkRange('link').setLink({ href: finalUrl, target: '_blank' }).run();
   };
 
   return (
-    <div className="border-b border-[#2C5282]/20 p-2 mb-4 flex flex-wrap gap-2">
-      <button
-        onClick={() => editor.chain().focus().toggleBold().run()}
-        disabled={!editor.can().chain().focus().toggleBold().run()}
-        className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
-          editor.isActive('bold') ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
-        }`}
-      >
-        <Bold size={16} />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-        disabled={!editor.can().chain().focus().toggleItalic().run()}
-        className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
-          editor.isActive('italic') ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
-        }`}
-      >
-        <Italic size={16} />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
-          editor.isActive('heading', { level: 1 }) ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
-        }`}
-      >
-        <Heading1 size={16} />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
-          editor.isActive('heading', { level: 2 }) ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
-        }`}
-      >
-        <Heading2 size={16} />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
-          editor.isActive('bulletList') ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
-        }`}
-      >
-        <List size={16} />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
-          editor.isActive('orderedList') ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
-        }`}
-      >
-        <ListOrdered size={16} />
-      </button>
-      <button
-        onClick={setLink}
-        className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
-          editor.isActive('link') ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
-        }`}
-      >
-        <LinkIcon size={16} />
-      </button>
-      <button
-        onClick={addImage}
-        className="p-2 rounded hover:bg-[#0F1620] transition-colors text-white"
-      >
-        <ImageIcon size={16} />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
-          editor.isActive('codeBlock') ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
-        }`}
-      >
-        <Code size={16} />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
-          editor.isActive('blockquote') ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
-        }`}
-      >
-        <Quote size={16} />
-      </button>
-    </div>
+    <>
+      <div className="border-b border-[#2C5282]/20 p-2 mb-4 flex flex-wrap gap-2">
+        <button
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          disabled={!editor.can().chain().focus().toggleBold().run()}
+          className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
+            editor.isActive('bold') ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
+          }`}
+        >
+          <Bold size={16} />
+        </button>
+        <button
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          disabled={!editor.can().chain().focus().toggleItalic().run()}
+          className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
+            editor.isActive('italic') ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
+          }`}
+        >
+          <Italic size={16} />
+        </button>
+        <button
+          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
+            editor.isActive('heading', { level: 1 }) ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
+          }`}
+        >
+          <Heading1 size={16} />
+        </button>
+        <button
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
+            editor.isActive('heading', { level: 2 }) ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
+          }`}
+        >
+          <Heading2 size={16} />
+        </button>
+        <button
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
+            editor.isActive('bulletList') ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
+          }`}
+        >
+          <List size={16} />
+        </button>
+        <button
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
+            editor.isActive('orderedList') ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
+          }`}
+        >
+          <ListOrdered size={16} />
+        </button>
+        <button
+          onClick={() => setShowLinkModal(true)}
+          className={`p-2 rounded hover:bg-[#0F1620] transition-colors ${
+            editor.isActive('link') ? 'bg-[#0F1620] text-[#63B3ED]' : 'text-white'
+          }`}
+        >
+          <LinkIcon size={16} />
+        </button>
+        <button
+          onClick={() => setShowImageModal(true)}
+          className="p-2 rounded hover:bg-[#0F1620] transition-colors text-white"
+        >
+          <ImageIcon size={16} />
+        </button>
+      </div>
+
+      <Modal
+        isOpen={showImageModal}
+        onClose={() => setShowImageModal(false)}
+        onSubmit={addImage}
+        title="Add Image"
+        placeholder="Enter the image URL"
+        buttonText="Add Image"
+      />
+
+      <Modal
+        isOpen={showLinkModal}
+        onClose={() => setShowLinkModal(false)}
+        onSubmit={setLink}
+        title="Add Link"
+        placeholder="Enter the URL"
+        buttonText="Add Link"
+      />
+    </>
   );
 };
 
@@ -130,8 +144,19 @@ const IdeaEditor = () => {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Link,
-      Image
+      Link.configure({
+        openOnClick: true,
+        linkOnPaste: true,
+        HTMLAttributes: {
+          target: '_blank',
+          rel: 'noopener noreferrer'
+        }
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class: 'rounded-lg max-w-full'
+        }
+      })
     ],
     editorProps: {
       attributes: {
@@ -152,7 +177,11 @@ const IdeaEditor = () => {
           'prose-blockquote:border-[#63B3ED]',
           'prose-a:text-[#63B3ED]',
           'prose-code:text-white',
-          'prose-li:text-white'
+          'prose-li:text-white',
+          'prose-ol:text-white',
+          'prose-ul:text-white',
+          'prose-bullet:text-white',
+          'prose-marker:text-white'
         ].join(' ')
       }
     }
@@ -262,6 +291,3 @@ const IdeaEditor = () => {
 };
 
 export default IdeaEditor;
-
-
-

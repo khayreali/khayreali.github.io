@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './contexts/AuthContext';
 
 // Import your components
+import Home from './pages/Home';  // New home page
 import Projects from './pages/Projects';
 import ProjectPost from './pages/ProjectPost';
 import About from './pages/About';
@@ -109,7 +110,7 @@ function App() {
         <AuthProvider>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<Projects />} />
+            <Route path="/" element={<Home />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:id" element={<ProjectPost />} />
             <Route path="/about" element={<About />} />

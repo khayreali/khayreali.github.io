@@ -14,7 +14,7 @@ const MobileNav = ({ isOpen, onClose }) => (
       </button>
     </div>
     <nav className="flex flex-col items-center space-y-8 pt-12">
-      {['Home', 'About', 'Blog'].map((item) => (
+      {['Home', 'Projects', 'Blog', 'About'].map((item) => (
         <Link
           key={item}
           to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
@@ -88,6 +88,7 @@ const BlogPreview = ({ post }) => (
     )}
   </Link>
 );
+
 const Blog = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -163,7 +164,7 @@ const Blog = () => {
             </button>
           </div>
           <ul className="hidden lg:flex space-x-12">
-            {['Home', 'About', 'Blog'].map((item) => (
+            {['Home', 'Projects', 'Blog', 'About'].map((item) => (
               <li key={item} className="relative group">
                 <Link 
                   to={item === 'Home' ? '/' : `/${item.toLowerCase()}`} 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { Terminal, Briefcase, Code, Menu, X } from 'lucide-react';
+import { User, Briefcase, Code, Menu, X } from 'lucide-react';
 
 const MobileNav = ({ isOpen, onClose }) => (
   <div className={`fixed inset-0 bg-[#0F1620]/95 backdrop-blur-sm z-50 lg:hidden transition-all duration-300 ${
@@ -14,7 +14,7 @@ const MobileNav = ({ isOpen, onClose }) => (
       </button>
     </div>
     <nav className="flex flex-col items-center space-y-8 pt-12">
-      {['Home', 'About', 'Blog'].map((item) => (
+      {['Home', 'Projects', 'Blog', 'About'].map((item) => (
         <Link
           key={item}
           to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
@@ -28,6 +28,7 @@ const MobileNav = ({ isOpen, onClose }) => (
   </div>
 );
 
+{/* Keep AboutSection component exactly the same */}
 const AboutSection = ({ icon, title, isActive, onClick }) => (
   <button
     onClick={onClick}
@@ -50,6 +51,7 @@ const AboutSection = ({ icon, title, isActive, onClick }) => (
 );
 
 const About = () => {
+  // Keep all state and effects the same
   const [aboutData, setAboutData] = useState({
     name: '',
     introduction: '',
@@ -83,7 +85,7 @@ const About = () => {
 
   const sections = {
     intro: {
-      icon: <Terminal />,
+      icon: <User />,
       title: "Introduction",
       content: aboutData.introduction
     },
@@ -121,7 +123,7 @@ const About = () => {
             </button>
           </div>
           <ul className="hidden lg:flex space-x-12">
-            {['Home', 'About', 'Blog'].map((item) => (
+            {['Home', 'Projects', 'Blog', 'About'].map((item) => (
               <li key={item} className="relative group">
                 <Link 
                   to={item === 'Home' ? '/' : `/${item.toLowerCase()}`} 
@@ -136,6 +138,7 @@ const About = () => {
         </div>
       </nav>
 
+      {/* Keep the rest of the component exactly the same */}
       <div className="max-w-7xl mx-auto pt-24 lg:pt-32 px-4 sm:px-6 lg:px-8">
         {loading ? (
           <div className="flex items-center space-x-2">

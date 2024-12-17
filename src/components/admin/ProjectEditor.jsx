@@ -134,18 +134,21 @@ const ProjectEditor = () => {
 
   return (
     <div className="min-h-screen bg-[#0F1620]">
-      <div className="max-w-4xl mx-auto pt-24 lg:pt-32 px-4 sm:px-6 lg:px-8">
-        {editMode ? (
-          <Link 
-            to="/admin/projects"
-            className="inline-flex items-center gap-2 text-[#63B3ED] hover:text-white 
-                     transition-all duration-300 mb-8 hover:translate-x-[-4px]"
-          >
-            <ArrowLeft size={20} />
-            <span className="font-['Space_Grotesk']">Back to Projects</span>
-          </Link>
-        ) : null}
-
+      <div className="max-w-4xl mx-auto p-8">
+      {editMode ? (
+  <button
+    onClick={() => {
+      navigate('/admin/projects');
+      window.location.reload();
+    }}
+    type="button"
+    className="inline-flex items-center gap-2 text-[#63B3ED] hover:text-white 
+             transition-all duration-300 mb-8 hover:translate-x-[-4px]"
+  >
+    <ArrowLeft size={20} />
+    <span className="font-['Space_Grotesk']">Back to Projects</span>
+  </button>
+) : null}
         <div className="relative mb-12">
           <h1 className="text-4xl font-bold text-white font-['Space_Grotesk'] relative z-10">
             {editMode ? 'Edit Project' : 'Create Project'}

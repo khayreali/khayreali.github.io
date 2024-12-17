@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { X, ChevronDown, Menu } from 'lucide-react';
+import { X, Menu, ArrowRight } from 'lucide-react';
 
 const MobileNav = ({ isOpen, onClose }) => (
   <div className={`fixed inset-0 bg-[#0F1620]/95 backdrop-blur-sm z-50 lg:hidden transition-all duration-300 ${
@@ -43,74 +43,55 @@ const TagButton = ({ tag, isSelected, onClick }) => (
   </button>
 );
 
-const BlogPost = ({ post, isExpanded, onToggle }) => (
-  <article
-    className={`bg-[#131E2B] rounded-xl border border-[#2C5282]/10 
+const BlogPreview = ({ post }) => (
+  <Link
+    to={`/blog/${post.id}`}
+    className="block bg-[#131E2B] rounded-xl border border-[#2C5282]/10 
               hover:border-[#2C5282]/30 transition-all duration-500 
-              transform relative group cursor-pointer
-              ${isExpanded ? 'p-6 sm:p-8' : 'p-4 sm:p-6'}`}
-    onClick={onToggle}
+              transform relative group p-6 sm:p-8"
   >
     <div className="absolute top-0 left-0 w-12 sm:w-16 h-12 sm:h-16 overflow-hidden pointer-events-none">
       <div className="absolute top-0 left-0 w-[1px] h-full bg-gradient-to-b from-[#63B3ED] to-transparent group-hover:h-16 transition-all duration-500"/>
       <div className="absolute top-0 left-0 h-[1px] w-full bg-gradient-to-r from-[#63B3ED] to-transparent group-hover:w-16 transition-all duration-500"/>
     </div>
 
-    <div className="flex items-center justify-between mb-2">
-      <div className="text-[#63B3ED] text-xs sm:text-sm font-['Space_Grotesk']">
+    <div className="flex items-center justify-between mb-4">
+      <div className="text-[#63B3ED] text-sm font-['Space_Grotesk']">
         {new Date(post.date + 'T00:00:00').toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'long',
           day: 'numeric'
         })}
       </div>
-      <ChevronDown 
-        className={`text-[#63B3ED] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} 
-        size={18} 
+      <ArrowRight 
+        className="text-[#63B3ED] opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:translate-x-1" 
+        size={20} 
       />
     </div>
     
-    <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 font-['Space_Grotesk'] group-hover:text-[#63B3ED] transition-colors">
+    <h2 className="text-xl sm:text-2xl font-bold text-white font-['Space_Grotesk'] group-hover:text-[#63B3ED] transition-colors">
       {post.title}
     </h2>
 
     {post.tags && post.tags.length > 0 && (
-      <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+      <div className="flex flex-wrap gap-2 mt-4">
         {post.tags.map((tag, index) => (
           <span
             key={index}
-            className="px-2 sm:px-3 py-0.5 sm:py-1 bg-[#0F1620] text-[#63B3ED] text-xs sm:text-sm rounded-full 
+            className="px-2 py-1 bg-[#0F1620] text-[#63B3ED] text-sm rounded-full 
                      border border-[#2C5282]/10 font-['Space_Grotesk']"
-            onClick={(e) => e.stopPropagation()}
           >
             #{tag.name}{tag.emoji}
           </span>
         ))}
       </div>
     )}
-
-    <div 
-      className={`overflow-hidden transition-all duration-500 ease-in-out
-                ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}
-    >
-      <div className="prose prose-invert max-w-none pt-4 border-t border-[#2C5282]/10">
-        {post.content.split('\n').map((paragraph, index) => (
-          paragraph ? (
-            <p key={index} className="text-sm sm:text-base text-gray-300 mb-3 sm:mb-4 font-['Space_Grotesk'] leading-relaxed">
-              {paragraph}
-            </p>
-          ) : null
-        ))}
-      </div>
-    </div>
-  </article>
+  </Link>
 );
-
 const Blog = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTag, setActiveTag] = useState(null);
-  const [expandedPostId, setExpandedPostId] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -147,12 +128,10 @@ const Blog = () => {
 
   const handleTagClick = (tag) => {
     setActiveTag(current => current?.name === tag.name ? null : tag);
-    setExpandedPostId(null);
   };
 
   const clearFilter = () => {
     setActiveTag(null);
-    setExpandedPostId(null);
   };
 
   const filteredPosts = useMemo(() => {
@@ -161,10 +140,6 @@ const Blog = () => {
       post.tags?.some(tag => tag.name === activeTag.name)
     );
   }, [posts, activeTag]);
-
-  const togglePost = (postId) => {
-    setExpandedPostId(current => current === postId ? null : postId);
-  };
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -178,7 +153,7 @@ const Blog = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center lg:hidden">
             <Link to="/" className="text-[#63B3ED] font-['Space_Grotesk'] text-xl">
-              Blog
+              Portfolio
             </Link>
             <button
               onClick={() => setIsMobileMenuOpen(true)}
@@ -246,14 +221,9 @@ const Blog = () => {
             <span className="text-[#63B3ED] font-['Space_Grotesk']">Loading posts...</span>
           </div>
         ) : (
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-6">
             {filteredPosts.map((post) => (
-              <BlogPost
-                key={post.id}
-                post={post}
-                isExpanded={expandedPostId === post.id}
-                onToggle={() => togglePost(post.id)}
-              />
+              <BlogPreview key={post.id} post={post} />
             ))}
           </div>
         )}

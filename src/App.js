@@ -5,8 +5,10 @@ import { useAuth } from './contexts/AuthContext';
 
 // Import your components
 import Projects from './pages/Projects';
+import ProjectPost from './pages/ProjectPost';
 import About from './pages/About';
 import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Login from './components/admin/Login';
 
@@ -109,11 +111,13 @@ function App() {
             {/* Public Routes */}
             <Route path="/" element={<Projects />} />
             <Route path="/projects" element={<Projects />} />
+            <Route path="/projects/:id" element={<ProjectPost />} />
             <Route path="/about" element={<About />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:id" element={<BlogPost />} />
             <Route path="/admin/login" element={<Login />} />
 
-            {/* Protected Admin Routes */}
+            {/* Protected Admin Route */}
             <Route 
               path="/admin/*" 
               element={

@@ -97,11 +97,13 @@ const AdminDashboard = () => {
       
       <main className="container mx-auto p-8">
         <Routes>
-          <Route index element={<DashboardHome />} />
-          <Route path="editor/:id" element={<IdeaEditor />} />
-          <Route path="projects" element={<ProjectEditor />} />
-          <Route path="blog" element={<BlogEditor />} />
-          <Route path="about" element={<AboutEditor />} />
+          <Route path="/" element={<DashboardHome />} />
+          <Route path="/editor/:id" element={<IdeaEditor />} />
+          <Route path="/projects" element={<ProjectEditor />} />
+          <Route path="/projects/edit/:id" element={<ProjectEditor />} />
+          <Route path="/blog" element={<BlogEditor />} />
+          <Route path="/blog/edit/:id" element={<BlogEditor />} />
+          <Route path="/about" element={<AboutEditor />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </main>

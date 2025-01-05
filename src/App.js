@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './contexts/AuthContext';
 
 // Import your components
-import Home from './pages/Home';  // New home page
+import Home from './pages/Home';
 import Projects from './pages/Projects';
 import ProjectPost from './pages/ProjectPost';
 import About from './pages/About';
@@ -90,24 +90,47 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-function App() {
+// Meta tags manager component
+const MetaTagsManager = () => {
+  const location = useLocation();
+
   useEffect(() => {
-    // Prevent indexing of admin routes
+    // Remove any existing robots meta tag
+    const existingRobotsMeta = document.querySelector('meta[name="robots"]');
+    if (existingRobotsMeta) {
+      existingRobotsMeta.remove();
+    }
+
+    // Create new meta tag
     const robotsMeta = document.createElement('meta');
     robotsMeta.name = 'robots';
-    robotsMeta.content = 'noindex, nofollow';
+    
+    // If current path includes /admin/, prevent indexing
+    if (location.pathname.includes('/admin/')) {
+      robotsMeta.content = 'noindex, nofollow';
+    } else {
+      robotsMeta.content = 'index, follow'; // Explicitly allow indexing for public routes
+    }
+    
     document.head.appendChild(robotsMeta);
 
     return () => {
-      document.head.removeChild(robotsMeta);
+      if (robotsMeta.parentNode) {
+        robotsMeta.parentNode.removeChild(robotsMeta);
+      }
     };
-  }, []);
+  }, [location.pathname]);
 
+  return null;
+};
+
+function App() {
   return (
     <div className="min-h-screen bg-[#0F1620] relative">
       <StarryBackground />
       <Router>
         <AuthProvider>
+          <MetaTagsManager />
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />

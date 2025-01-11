@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { db } from '../lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { X, Menu, ArrowRight } from 'lucide-react';
 
 const MobileNav = ({ isOpen, onClose }) => (
@@ -99,12 +99,14 @@ const Blog = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'blogs'));
+        // Get only published posts, ordered by date
+        const querySnapshot = await getDocs(
+          query(collection(db, 'blogs'), orderBy('date', 'desc'))
+        );
         const postsList = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         }));
-        postsList.sort((a, b) => new Date(b.date) - new Date(a.date));
         setPosts(postsList);
       } catch (error) {
         console.error('Error fetching blog posts:', error);

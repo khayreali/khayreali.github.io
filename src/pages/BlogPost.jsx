@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { ArrowLeft, Clock } from 'lucide-react';
@@ -15,18 +15,23 @@ const BlogPost = () => {
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
+        // Only fetch from the published blogs collection
         const docRef = doc(db, 'blogs', id);
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
           setPost({ id: docSnap.id, ...docSnap.data() });
+        } else {
+          setNotFound(true);
         }
       } catch (error) {
         console.error('Error fetching blog post:', error);
+        setNotFound(true);
       } finally {
         setLoading(false);
       }
@@ -46,13 +51,24 @@ const BlogPost = () => {
     );
   }
 
-  if (!post) {
+  if (notFound) {
     return (
       <div className="min-h-screen bg-[#0F1620] pt-24 lg:pt-32 px-4 sm:px-6 lg:px-8">
-        <div className="text-white font-['Space_Grotesk']">Post not found</div>
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-2xl text-white font-['Space_Grotesk'] mb-4">Post not found</h2>
+          <Link 
+            to="/blog"
+            className="inline-flex items-center gap-2 text-[#63B3ED] hover:text-white transition-colors"
+          >
+            <ArrowLeft size={20} />
+            <span className="font-['Space_Grotesk']">Return to Blog</span>
+          </Link>
+        </div>
       </div>
     );
   }
+
+  if (!post) return null;
 
   const readingTime = calculateReadingTime(post.content);
 
@@ -68,8 +84,8 @@ const BlogPost = () => {
           <span className="font-['Space_Grotesk']">Back to Blog</span>
         </Link>
 
-        <article className="bg-gradient-to-b from-[#131E2B] to-[#0F1620] rounded-xl 
-                          border border-[#2C5282]/10 p-6 sm:p-8 shadow-xl">
+        <article className="bg-[#131E2B] rounded-xl border border-[#2C5282]/10 
+                          p-6 sm:p-8 shadow-xl mb-16">
           <div className="flex items-center justify-between mb-6">
             <div className="text-[#63B3ED] text-sm font-['Space_Grotesk']">
               {new Date(post.date + 'T00:00:00').toLocaleDateString('en-US', {

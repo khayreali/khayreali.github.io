@@ -1,8 +1,7 @@
 User-agent: *
+Allow: /
 Disallow: /admin/
 Disallow: /admin/*
 
-# Prevent indexing of admin routes
-User-agent: *
-Noindex: /admin/
-Noindex: /admin/*
+# Sitemap
+Sitemap: https://khayreali.com/sitemap.xml

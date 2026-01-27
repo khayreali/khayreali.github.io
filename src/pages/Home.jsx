@@ -212,21 +212,31 @@ const Home = () => {
       <main className="max-w-3xl mx-auto px-6 pt-16 pb-24">
 
         {/* About Section */}
-        <section id="about" className="mb-16">
+        <section id="about" className="mb-16" itemScope itemType="https://schema.org/Person">
           {aboutData?.imageUrl && (
             <div className="mb-6">
               <img
                 src={aboutData.imageUrl}
-                alt={aboutData.name || 'Profile'}
+                alt="Khayre Ali - Software Engineer"
                 className="w-28 h-28 rounded-full object-cover"
                 style={{ border: '2px solid var(--border)' }}
+                itemProp="image"
               />
             </div>
           )}
 
+          <h1
+            className="text-3xl mb-4"
+            style={{ color: 'var(--text-primary)' }}
+            itemProp="name"
+          >
+            Khayre Ali
+          </h1>
+
           <p
             className="text-lg leading-relaxed mb-6 whitespace-pre-line"
             style={{ color: 'var(--text-secondary)' }}
+            itemProp="description"
           >
             {aboutData?.introduction || 'Welcome to my portfolio.'}
           </p>

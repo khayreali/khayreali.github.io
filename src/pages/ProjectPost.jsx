@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db } from '../lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { ArrowLeft, Github, ExternalLink } from 'lucide-react';
+import SEO, { createProjectSchema } from '../components/SEO';
 
 const ProjectPost = () => {
   const { id } = useParams();
@@ -12,11 +13,22 @@ const ProjectPost = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const docRef = doc(db, 'projects', id);
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-          setProject({ id: docSnap.id, ...docSnap.data() });
+        // First try to find by slug
+        const projectsRef = collection(db, 'projects');
+        const slugQuery = query(projectsRef, where('slug', '==', id));
+        const slugSnapshot = await getDocs(slugQuery);
+
+        if (!slugSnapshot.empty) {
+          const docData = slugSnapshot.docs[0];
+          setProject({ id: docData.id, ...docData.data() });
+        } else {
+          // Fall back to finding by ID
+          const docRef = doc(db, 'projects', id);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            setProject({ id: docSnap.id, ...docSnap.data() });
+          }
         }
       } catch (error) {
         console.error('Error fetching project:', error);
@@ -30,56 +42,87 @@ const ProjectPost = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0F1620] pt-24 lg:pt-32 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 border-2 border-[#63B3ED] border-t-transparent rounded-full animate-spin"/>
-          <span className="text-[#63B3ED] font-['Space_Grotesk']">Loading project...</span>
-        </div>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: 'var(--bg-primary)' }}
+      >
+        <p className="italic" style={{ color: 'var(--text-muted)' }}>Loading...</p>
       </div>
     );
   }
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-[#0F1620] pt-24 lg:pt-32 px-4 sm:px-6 lg:px-8">
-        <div className="text-white font-['Space_Grotesk']">Project not found</div>
+      <div
+        className="min-h-screen pt-16 px-6"
+        style={{ backgroundColor: 'var(--bg-primary)' }}
+      >
+        <SEO
+          title="Project Not Found"
+          description="The project you're looking for doesn't exist."
+          url={`/projects/${id}`}
+          noIndex={true}
+        />
+        <div className="max-w-2xl mx-auto text-center">
+          <h2
+            className="text-xl mb-6"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            Project not found
+          </h2>
+          <Link
+            to="/projects"
+            className="inline-flex items-center gap-2 transition-colors"
+            style={{ color: 'var(--accent)' }}
+          >
+            <ArrowLeft size={16} />
+            Back to projects
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0F1620]">
-      <div className="max-w-4xl mx-auto pt-24 lg:pt-32 px-4 sm:px-6 lg:px-8">
-        <Link 
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: 'var(--bg-primary)' }}
+    >
+      <SEO
+        title={project.title}
+        description={project.description}
+        url={`/projects/${project.slug || project.id}`}
+        structuredData={createProjectSchema(project)}
+      />
+
+      <div className="max-w-2xl mx-auto pt-16 pb-24 px-6">
+        <Link
           to="/projects"
-          className="inline-flex items-center gap-2 text-[#63B3ED] hover:text-white 
-                   transition-all duration-300 mb-8 hover:translate-x-[-4px]"
+          className="inline-flex items-center gap-2 mb-16 text-sm sans transition-colors"
+          style={{ color: 'var(--text-muted)' }}
         >
-          <ArrowLeft size={20} />
-          <span className="font-['Space_Grotesk']">Back to Projects</span>
+          <ArrowLeft size={16} />
+          Back
         </Link>
 
-        <article className="bg-gradient-to-b from-[#131E2B] to-[#0F1620] rounded-xl 
-                          border border-[#2C5282]/10 p-6 sm:p-8 shadow-xl">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <div className="w-1 h-8 bg-[#63B3ED] mr-4"/>
-              <h1 className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent 
-                           bg-gradient-to-r from-white to-gray-200 
-                           font-['Space_Grotesk']">
-                {project.title}
-              </h1>
-            </div>
-          </div>
+        <article>
+          <h1
+            className="text-3xl md:text-4xl mb-8"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            {project.title}
+          </h1>
 
           {project.technologies && project.technologies.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-8">
+            <div className="flex flex-wrap gap-2 mb-10">
               {project.technologies.map((tech, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1.5 bg-[#0F1620]/50 text-[#63B3ED] text-sm rounded-full 
-                           border border-[#2C5282]/10 font-['Space_Grotesk']
-                           shadow-lg shadow-[#63B3ED]/5"
+                  className="text-sm sans px-3 py-1 rounded"
+                  style={{
+                    backgroundColor: 'var(--bg-secondary)',
+                    color: 'var(--text-muted)'
+                  }}
                 >
                   {tech}
                 </span>
@@ -87,24 +130,41 @@ const ProjectPost = () => {
             </div>
           )}
 
-          <div className="prose prose-invert max-w-none mb-8">
-            <p className="text-gray-300 text-lg leading-relaxed font-['Space_Grotesk']">
-              {project.description}
-            </p>
-          </div>
+          {project.demoGif && (
+            <div
+              className="mb-10 rounded-lg overflow-hidden"
+              style={{ border: '1px solid var(--border)' }}
+            >
+              <img
+                src={project.demoGif}
+                alt={`${project.title} demo`}
+                className="w-full"
+              />
+            </div>
+          )}
+
+          <p
+            className="text-lg leading-relaxed mb-12"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            {project.description}
+          </p>
 
           {(project.githubUrl || project.liveUrl) && (
-            <div className="flex flex-wrap gap-6 pt-6 border-t border-[#2C5282]/20">
+            <div
+              className="flex flex-wrap gap-6 pt-8"
+              style={{ borderTop: '1px solid var(--border)' }}
+            >
               {project.githubUrl && (
                 <a
                   href={project.githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-[#63B3ED] hover:text-white 
-                           transition-colors font-['Space_Grotesk'] group"
+                  className="flex items-center gap-2 sans transition-colors"
+                  style={{ color: 'var(--text-muted)' }}
                 >
-                  <Github size={20} className="group-hover:scale-110 transition-transform" />
-                  View Source Code
+                  <Github size={18} />
+                  View source code
                 </a>
               )}
               {project.liveUrl && (
@@ -112,11 +172,11 @@ const ProjectPost = () => {
                   href={project.liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-[#63B3ED] hover:text-white 
-                           transition-colors font-['Space_Grotesk'] group"
+                  className="flex items-center gap-2 sans transition-colors"
+                  style={{ color: 'var(--text-muted)' }}
                 >
-                  <ExternalLink size={20} className="group-hover:scale-110 transition-transform" />
-                  View Live Demo
+                  <ExternalLink size={18} />
+                  View live demo
                 </a>
               )}
             </div>

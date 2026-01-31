@@ -88,6 +88,15 @@ const ProjectCard = ({ project, isExpanded, onToggle }) => (
         className="px-6 pb-6 pt-2"
         style={{ borderTop: '1px solid var(--border-light)' }}
       >
+        {project.demoGif && (
+          <div className="mb-4 rounded-lg overflow-hidden" style={{ border: '1px solid var(--border-light)' }}>
+            <img
+              src={project.demoGif}
+              alt={`${project.title} demo`}
+              className="w-full"
+            />
+          </div>
+        )}
         {(project.githubUrl || project.liveUrl) && (
           <div className="flex flex-wrap gap-6">
             {project.githubUrl && (

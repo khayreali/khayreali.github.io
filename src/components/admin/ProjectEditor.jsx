@@ -12,6 +12,7 @@ const ProjectEditor = () => {
   const [technologies, setTechnologies] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [liveUrl, setLiveUrl] = useState('');
+  const [demoGif, setDemoGif] = useState('');
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -100,6 +101,7 @@ const ProjectEditor = () => {
             setTechnologies(data.technologies.join(', ') || '');
             setGithubUrl(data.githubUrl || '');
             setLiveUrl(data.liveUrl || '');
+            setDemoGif(data.demoGif || '');
           }
         } catch (error) {
           console.error('Error fetching project:', error);
@@ -150,6 +152,7 @@ const ProjectEditor = () => {
       technologies: technologies.split(',').map(tech => tech.trim()).filter(t => t),
       githubUrl: githubUrl.trim(),
       liveUrl: liveUrl.trim(),
+      demoGif: demoGif.trim(),
       updatedAt: new Date().toISOString(),
     };
 
@@ -168,6 +171,7 @@ const ProjectEditor = () => {
         setTechnologies('');
         setGithubUrl('');
         setLiveUrl('');
+        setDemoGif('');
         alert('Project created successfully!');
         fetchProjects();
       }
@@ -421,6 +425,29 @@ const ProjectEditor = () => {
               placeholder="https://your-project.com"
               disabled={loading}
             />
+          </div>
+
+          <div>
+            <label className="block mb-2 sans" style={{ color: 'var(--text-muted)' }}>
+              Demo GIF URL
+            </label>
+            <input
+              type="url"
+              value={demoGif}
+              onChange={(e) => setDemoGif(e.target.value)}
+              className="w-full p-3 rounded-md sans transition-all focus:outline-none focus:ring-2"
+              style={{
+                backgroundColor: 'var(--bg-primary)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-primary)',
+                '--tw-ring-color': 'var(--accent)'
+              }}
+              placeholder="https://github.com/user/repo/raw/main/demo.gif"
+              disabled={loading}
+            />
+            <p className="text-xs mt-1 sans" style={{ color: 'var(--text-muted)' }}>
+              Use raw GitHub URL for GIFs in your repo
+            </p>
           </div>
 
           <button

@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 
 const SITE_NAME = 'Khayre Ali';
 const SITE_URL = 'https://khayreali.com';
-const DEFAULT_DESCRIPTION = 'Khayre Ali is a software engineer with experience at WPP, Plain Sight Capital, and PwC. NYU Stern graduate, pursuing MS in Computer Science at Northeastern University.';
+const DEFAULT_DESCRIPTION = 'Hi, I\'m Khayre. MS Computer Science at Northeastern, founder of Keybridge Quant, and building things at the intersection of finance and technology.';
 const DEFAULT_IMAGE = `${SITE_URL}/logo512.png`;
 
 /**

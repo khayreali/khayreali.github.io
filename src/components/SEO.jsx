@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 
 const SITE_NAME = 'Khayre Ali';
 const SITE_URL = 'https://khayreali.com';
-const DEFAULT_DESCRIPTION = 'Hi, I\'m Khayre. MS Computer Science at Northeastern, founder of Keybridge Quant, and building things at the intersection of finance and technology.';
+const DEFAULT_DESCRIPTION = 'Learn more about Khayre Ali.';
 const DEFAULT_IMAGE = `${SITE_URL}/logo512.png`;
 
 /**
@@ -29,7 +29,7 @@ const SEO = ({
   noIndex = false
 }) => {
   const fullTitle = title ? `${title} - ${SITE_NAME}` : SITE_NAME;
-  const canonicalUrl = `${SITE_URL}/#${url}`;
+  const canonicalUrl = url === '/' ? SITE_URL : `${SITE_URL}${url}`;
 
   // Default structured data for the website
   const defaultStructuredData = {
@@ -128,7 +128,7 @@ export const createBlogPostSchema = (post) => ({
   },
   mainEntityOfPage: {
     '@type': 'WebPage',
-    '@id': `${SITE_URL}/#/blog/${post.slug || post.id}`
+    '@id': `${SITE_URL}/blog/${post.slug || post.id}`
   },
   keywords: post.tags?.map(t => t.name).join(', ') || ''
 });
@@ -177,7 +177,7 @@ export const createWebsiteSchema = () => ({
   },
   potentialAction: {
     '@type': 'SearchAction',
-    target: `${SITE_URL}/#/blog?search={search_term_string}`,
+    target: `${SITE_URL}/blog?search={search_term_string}`,
     'query-input': 'required name=search_term_string'
   }
 });

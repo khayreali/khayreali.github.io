@@ -260,9 +260,15 @@ const Home = () => {
             </h2>
             <div className="space-y-2">
               <div className="flex justify-between items-baseline">
-                <span style={{ color: 'var(--text-secondary)' }}>WPP</span>
+                <span style={{ color: 'var(--text-secondary)' }}>MSCI Inc.</span>
                 <span className="text-sm sans" style={{ color: 'var(--text-muted)' }}>
                   Current
+                </span>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <span style={{ color: 'var(--text-secondary)' }}>WPP</span>
+                <span className="text-sm sans" style={{ color: 'var(--text-muted)' }}>
+                  2026
                 </span>
               </div>
               <div className="flex justify-between items-baseline">

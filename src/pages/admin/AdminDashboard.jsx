@@ -2,9 +2,7 @@ import React, { useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import ProjectEditor from '../../components/admin/ProjectEditor';
-import DashboardHome from '../../components/admin/DashboardHome';
 import AboutEditor from '../../components/admin/AboutEditor';
-import IdeaEditor from '../../components/admin/IdeaEditor';
 
 const AdminDashboard = () => {
   const { currentUser, signOut } = useAuth();
@@ -59,13 +57,6 @@ const AdminDashboard = () => {
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-8">
             <Link
-              to="/admin"
-              className="sans transition-colors hover:opacity-70"
-              style={{ color: 'var(--accent)' }}
-            >
-              Dashboard
-            </Link>
-            <Link
               to="/admin/projects"
               className="sans transition-colors hover:opacity-70"
               style={{ color: 'var(--accent)' }}
@@ -100,8 +91,7 @@ const AdminDashboard = () => {
 
       <main className="container mx-auto p-8">
         <Routes>
-          <Route path="/" element={<DashboardHome />} />
-          <Route path="/editor/:id" element={<IdeaEditor />} />
+          <Route path="/" element={<Navigate to="/admin/projects" replace />} />
           <Route path="/projects" element={<ProjectEditor />} />
           <Route path="/projects/edit/:id" element={<ProjectEditor />} />
           <Route path="/about" element={<AboutEditor />} />

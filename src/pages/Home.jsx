@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
-import { ExternalLink, Github, Linkedin, Sun, Moon, ChevronDown, ChevronUp } from 'lucide-react';
+import { doc, getDoc } from 'firebase/firestore';
+import { Github, Linkedin, Sun, Moon } from 'lucide-react';
 import SEO, { createWebsiteSchema, createPersonSchema } from '../components/SEO';
 
 // Theme toggle hook
@@ -29,134 +29,17 @@ const useTheme = () => {
   return { theme, toggleTheme, isDark };
 };
 
-// Project card with expandable details
-const ProjectCard = ({ project, isExpanded, onToggle }) => (
-  <div
-    className="rounded-lg overflow-hidden"
-    style={{
-      backgroundColor: 'var(--bg-card)',
-      border: '1px solid var(--border)'
-    }}
-  >
-    <button
-      onClick={onToggle}
-      className="w-full p-6 text-left transition-colors hover:opacity-90"
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
-          <h3
-            className="text-xl mb-2"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            {project.title}
-          </h3>
-          <p
-            className={`text-base leading-relaxed ${isExpanded ? '' : 'line-clamp-2'}`}
-            style={{ color: 'var(--text-secondary)' }}
-          >
-            {project.description}
-          </p>
-        </div>
-        <div
-          className="flex-shrink-0 mt-1"
-          style={{ color: 'var(--text-muted)' }}
-        >
-          {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-        </div>
-      </div>
-
-      {project.technologies && project.technologies.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-4">
-          {project.technologies.map((tech, index) => (
-            <span
-              key={index}
-              className="text-sm sans px-2 py-0.5 rounded"
-              style={{
-                backgroundColor: 'var(--bg-secondary)',
-                color: 'var(--text-muted)'
-              }}
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
-      )}
-    </button>
-
-    {isExpanded && (
-      <div
-        className="px-6 pb-6 pt-2"
-        style={{ borderTop: '1px solid var(--border-light)' }}
-      >
-        {project.demoGif && (
-          <div className="mb-4 rounded-lg overflow-hidden" style={{ border: '1px solid var(--border-light)' }}>
-            <img
-              src={project.demoGif}
-              alt={`${project.title} demo`}
-              className="w-full"
-            />
-          </div>
-        )}
-        {(project.githubUrl || project.liveUrl) && (
-          <div className="flex flex-wrap gap-6">
-            {project.githubUrl && (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 sans transition-colors hover:opacity-70"
-                style={{ color: 'var(--accent)' }}
-              >
-                <Github size={18} />
-                View source code
-              </a>
-            )}
-            {project.liveUrl && (
-              <a
-                href={project.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 sans transition-colors hover:opacity-70"
-                style={{ color: 'var(--accent)' }}
-              >
-                <ExternalLink size={18} />
-                View live demo
-              </a>
-            )}
-          </div>
-        )}
-      </div>
-    )}
-  </div>
-);
-
 const Home = () => {
-  const [projects, setProjects] = useState([]);
   const [aboutData, setAboutData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [expandedProject, setExpandedProject] = useState(null);
   const { isDark, toggleTheme } = useTheme();
 
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const projectsSnapshot = await getDocs(collection(db, 'projects'));
-        const projectsList = projectsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        // Sort by order field, then by createdAt as fallback
-        projectsList.sort((a, b) => {
-          const orderA = a.order ?? 999;
-          const orderB = b.order ?? 999;
-          if (orderA !== orderB) return orderA - orderB;
-          return new Date(b.createdAt) - new Date(a.createdAt);
-        });
-
         const aboutRef = doc(db, 'content', 'about');
         const aboutSnap = await getDoc(aboutRef);
 
-        setProjects(projectsList);
         if (aboutSnap.exists()) {
           setAboutData(aboutSnap.data());
         }
@@ -169,10 +52,6 @@ const Home = () => {
 
     fetchContent();
   }, []);
-
-  const toggleProject = (projectId) => {
-    setExpandedProject(expandedProject === projectId ? null : projectId);
-  };
 
   // Create combined structured data
   const structuredData = {
@@ -343,33 +222,6 @@ const Home = () => {
               LinkedIn
             </a>
           </div>
-        </section>
-
-        {/* Projects Section */}
-        <section id="projects" className="mb-16">
-          <h2
-            className="text-2xl mb-6"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            Projects
-          </h2>
-
-          <div className="grid grid-cols-1 gap-6">
-            {projects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                isExpanded={expandedProject === project.id}
-                onToggle={() => toggleProject(project.id)}
-              />
-            ))}
-          </div>
-
-          {projects.length === 0 && (
-            <p className="italic" style={{ color: 'var(--text-muted)' }}>
-              No projects yet.
-            </p>
-          )}
         </section>
 
         {/* Footer */}

@@ -1,10 +1,11 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import profile from '../data/profile.json';
 
 const SITE_NAME = 'Khayre Ali';
 const SITE_URL = 'https://khayreali.com';
-const DEFAULT_DESCRIPTION = 'Learn more about Khayre Ali.';
-const DEFAULT_IMAGE = `${SITE_URL}/logo512.png`;
+const DEFAULT_DESCRIPTION = profile.description;
+const DEFAULT_IMAGE = `${SITE_URL}${profile.imageUrl}`;
 
 /**
  * SEO Component for managing meta tags and structured data
@@ -28,8 +29,8 @@ const SEO = ({
   structuredData = null,
   noIndex = false
 }) => {
-  const fullTitle = title ? `${title} - ${SITE_NAME}` : SITE_NAME;
-  const canonicalUrl = url === '/' ? SITE_URL : `${SITE_URL}${url}`;
+  const fullTitle = title ? `${title} - ${SITE_NAME}` : profile.title;
+  const canonicalUrl = !url || url === '/' ? profile.url : `${SITE_URL}${url}`;
 
   // Default structured data for the website
   const defaultStructuredData = {
@@ -65,7 +66,7 @@ const SEO = ({
       <meta property="og:site_name" content={SITE_NAME} />
 
       {/* Twitter */}
-      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:card" content="summary" />
       <meta name="twitter:url" content={canonicalUrl} />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
@@ -149,37 +150,28 @@ export const createProjectSchema = (project) => ({
   keywords: project.technologies?.join(', ') || ''
 });
 
-export const createPersonSchema = (aboutData) => ({
+export const createPersonSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Person',
-  name: aboutData?.name || SITE_NAME,
-  url: SITE_URL,
-  description: aboutData?.introduction || DEFAULT_DESCRIPTION,
-  ...(aboutData?.imageUrl && { image: aboutData.imageUrl }),
-  sameAs: [
-    'https://github.com/khayreali',
-    'https://linkedin.com/in/khayreali'
-  ],
-  jobTitle: 'Software Engineer',
-  knowsAbout: aboutData?.skills?.split(',').map(s => s.trim()) || []
+  '@id': `${profile.url}#person`,
+  name: profile.name,
+  url: profile.url,
+  description: profile.description,
+  image: DEFAULT_IMAGE,
+  sameAs: profile.sameAs,
+  worksFor: { '@type': 'Organization', name: profile.organization },
+  homeLocation: { '@type': 'City', name: profile.city }
 });
 
 export const createWebsiteSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
+  '@id': `${profile.url}#website`,
   name: SITE_NAME,
-  url: SITE_URL,
+  alternateName: 'khayreali.com',
+  url: profile.url,
   description: DEFAULT_DESCRIPTION,
-  author: {
-    '@type': 'Person',
-    name: SITE_NAME,
-    url: SITE_URL
-  },
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: `${SITE_URL}/blog?search={search_term_string}`,
-    'query-input': 'required name=search_term_string'
-  }
+  author: { '@id': `${profile.url}#person` }
 });
 
 export default SEO;

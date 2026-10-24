@@ -3,6 +3,7 @@ import { db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { Github, Linkedin, Sun, Moon } from 'lucide-react';
 import SEO, { createWebsiteSchema, createPersonSchema } from '../components/SEO';
+import profile from '../data/profile.json';
 
 // Theme toggle hook
 const useTheme = () => {
@@ -30,8 +31,7 @@ const useTheme = () => {
 };
 
 const Home = () => {
-  const [aboutData, setAboutData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [aboutData, setAboutData] = useState(profile);
   const { isDark, toggleTheme } = useTheme();
 
   useEffect(() => {
@@ -41,12 +41,16 @@ const Home = () => {
         const aboutSnap = await getDoc(aboutRef);
 
         if (aboutSnap.exists()) {
-          setAboutData(aboutSnap.data());
+          const content = aboutSnap.data();
+          setAboutData({
+            ...profile,
+            ...content,
+            introduction: content.introduction || profile.introduction,
+            imageUrl: content.imageUrl || profile.imageUrl
+          });
         }
       } catch (error) {
         console.error('Error fetching content:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -58,20 +62,9 @@ const Home = () => {
     '@context': 'https://schema.org',
     '@graph': [
       createWebsiteSchema(),
-      createPersonSchema(aboutData)
+      createPersonSchema()
     ]
   };
-
-  if (loading) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: 'var(--bg-primary)' }}
-      >
-        <p style={{ color: 'var(--text-muted)' }} className="italic">Loading...</p>
-      </div>
-    );
-  }
 
   return (
     <div
@@ -80,7 +73,8 @@ const Home = () => {
     >
       <SEO
         title={null}
-        description={aboutData?.introduction || "Software engineer and builder. Exploring quantitative trading, machine learning, and building useful things."}
+        description={profile.description}
+        type="profile"
         url="/"
         structuredData={structuredData}
       />
@@ -105,7 +99,9 @@ const Home = () => {
             <div className="mb-6">
               <img
                 src={aboutData.imageUrl}
-                alt="Khayre Ali - Software Engineer"
+                alt="Khayre Ali"
+                width="112"
+                height="112"
                 className="w-28 h-28 rounded-full object-cover"
                 style={{ border: '2px solid var(--border)' }}
                 itemProp="image"
@@ -126,11 +122,11 @@ const Home = () => {
             style={{ color: 'var(--text-secondary)' }}
             itemProp="description"
           >
-            {aboutData?.introduction || 'Welcome to my portfolio.'}
+            {aboutData.introduction}
           </p>
 
           {/* Experience */}
-          <div className="mb-6">
+          <div className="mb-6" data-nosnippet="">
             <h2
               className="text-lg mb-3"
               style={{ color: 'var(--text-primary)' }}
@@ -172,7 +168,7 @@ const Home = () => {
           </div>
 
           {/* Education */}
-          <div className="mb-6">
+          <div className="mb-6" data-nosnippet="">
             <h2
               className="text-lg mb-3"
               style={{ color: 'var(--text-primary)' }}
@@ -230,7 +226,7 @@ const Home = () => {
             className="text-sm sans"
             style={{ color: 'var(--text-muted)' }}
           >
-            &copy; {new Date().getFullYear()} {aboutData?.name}
+            <span data-nosnippet="">&copy; {new Date().getFullYear()} {aboutData?.name}</span>
           </p>
         </footer>
       </main>
